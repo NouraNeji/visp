@@ -41,7 +41,7 @@
 #include <visp3/tt_mi/vpTemplateTrackerMIInverseCompositional.h>
 
 #include <memory>
-
+#define PERF_LOG
 vpTemplateTrackerMIInverseCompositional::vpTemplateTrackerMIInverseCompositional(vpTemplateTrackerWarp *_warp)
   : vpTemplateTrackerMI(_warp), minimizationMethod(USE_LMA), CompoInitialised(false), useTemplateSelect(false),
     evolRMS(0), x_pos(NULL), y_pos(NULL), threshold_RMS(1e-20), p_prec(), G_prec(), KQuasiNewton() //, useAYOptim(false)
@@ -471,7 +471,12 @@ void vpTemplateTrackerMIInverseCompositional::trackNoPyr(const vpImage<unsigned 
   // iterationMax)&&(evolRMS>threshold_RMS) );
 
   nbIteration = iteration;
-
+#ifdef PERF_LOG
+ std::fstream file("/tmp/tt-log-optimize.txt",std::fstream::in | std::fstream::out | std::fstream::app);
+ file.seekg(0);
+ size_t lf_cnt = std::count(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>(), '\n');
+ file<<lf_cnt+1<<" "<<iteration<<" "<<evolRMS<<" "<<MI<< std::endl;
+#endif
   if (diverge) {
     if (computeCovariance) {
       covarianceMatrix = vpMatrix(Warp->getNbParam(), Warp->getNbParam());

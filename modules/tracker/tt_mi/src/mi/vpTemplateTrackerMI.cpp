@@ -40,7 +40,8 @@
 #include <visp3/core/vpException.h>
 #include <visp3/tt_mi/vpTemplateTrackerMI.h>
 #include <visp3/tt_mi/vpTemplateTrackerMIBSpline.h>
-
+#include <fstream>
+#define PERF_LOG
 void vpTemplateTrackerMI::setBspline(const vpBsplineType &newbs)
 {
   bspline = (int)newbs;
@@ -111,6 +112,10 @@ vpTemplateTrackerMI::vpTemplateTrackerMI(vpTemplateTrackerWarp *_warp)
   PrtTout = new double[Nc * Nc * influBspline * (1 + (int)(nbParam + nbParam * nbParam))];
 
   lambda = lambdaDep;
+#ifdef PERF_LOG
+ std::fstream file;
+ file.open("/tmp/tt-log-optimize.txt",std::fstream::in | std::fstream::out | std::fstream::app);
+#endif
 }
 
 void vpTemplateTrackerMI::setNc(int nc)
@@ -343,7 +348,12 @@ vpTemplateTrackerMI::~vpTemplateTrackerMI()
     delete[] temp;
   if (dprtemp)
     delete[] dprtemp;
+#ifdef PERF_LOG
+ std::fstream file("/tmp/tt-log-optimize.txt");
+file.close();
+#endif
 }
+
 
 void vpTemplateTrackerMI::computeProba(int &nbpoint)
 {
